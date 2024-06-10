@@ -1,10 +1,12 @@
 package ch.francescoryu.view;
 
+import ch.francescoryu.model.Events;
 import ch.francescoryu.view.panels.CalendarArea;
+import ch.francescoryu.view.panels.DayEventArea;
+import util.CalendarUtil;
 import util.DateChangedListener;
 
 import javax.swing.*;
-import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.net.URL;
 
@@ -13,7 +15,9 @@ public class MainView
     private JLabel titleLabel;
 
     private CalendarArea calendarArea;
+    private DayEventArea dayEventArea;
 
+    private JPanel titlePanel;
     private JPanel dayEventPanel;
     private JPanel calendarPanel;
 
@@ -22,15 +26,18 @@ public class MainView
 
     private DateChangedListener dateChangedListener;
 
-    public MainView()
+    private Events events;
+
+    public MainView(Events events)
     {
+        this.events = events;
         init();
     }
 
     private void init()
     {
         initListeners();
-        initTitleLabel();
+        initTitlePanel();
         initDayEventPanel();
         initCalendarPanel();
         initSplitPane();
@@ -42,35 +49,33 @@ public class MainView
         dateChangedListener = new DateChangedListener()
         {
             @Override
-            public void dateChanged(int day, String month, int year)
+            public void dateChanged(int day, int month, int year)
             {
-
+                dayEventArea.setLabelText(day + "." + month + "." + year);
             }
         };
     }
 
-    private void initTitleLabel()
+    private void initTitlePanel()
     {
-        titleLabel = createTitleLabel();
-    }
-
-    private JLabel createTitleLabel()
-    {
-        JLabel label = new JLabel("ChronoMate", SwingConstants.CENTER);
-        label.setBorder(new EmptyBorder(20, 20, 20, 20));
-        label.setFont(new Font("", Font.BOLD, 35));
-        return label;
+        titleLabel = CalendarUtil.createTitleLabel("ChronoMate");
+        titlePanel = new JPanel();
+        titlePanel.add(titleLabel);
+        titlePanel.setBackground(Color.decode("#b6ba9c"));
     }
 
     private void initDayEventPanel()
     {
-        dayEventPanel = new JPanel();
+        dayEventArea = new DayEventArea();
+        dayEventPanel = dayEventArea.getPanel();
+        dayEventPanel.setBackground(Color.decode("#abd1d0"));
     }
 
     private void initCalendarPanel()
     {
-        calendarArea = new CalendarArea(dateChangedListener);
+        calendarArea = new CalendarArea(dateChangedListener, events);
         calendarPanel = calendarArea.getPanel();
+        calendarPanel.setBackground(Color.decode("#D1ABAC"));
     }
 
     private void initSplitPane()
@@ -80,6 +85,7 @@ public class MainView
         splitPane.setRightComponent(calendarPanel);
         splitPane.setResizeWeight(0.0);
         splitPane.setBorder(null);
+        splitPane.setBackground(null);
     }
 
     private void initFrame()
@@ -93,7 +99,7 @@ public class MainView
 
         initFrameIcon();
 
-        frame.add(titleLabel, BorderLayout.NORTH);
+        frame.add(titlePanel, BorderLayout.NORTH);
         frame.add(splitPane, BorderLayout.CENTER);
         frame.setVisible(true);
     }

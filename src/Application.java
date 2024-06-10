@@ -1,13 +1,33 @@
+import ch.francescoryu.model.Events;
 import ch.francescoryu.view.MainView;
+import jakarta.xml.bind.JAXBException;
+import util.PathHolder;
+import xml.XMLController;
 
 import javax.swing.*;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
 
 public class Application
 {
+
+    private static Events events;
+
     public static void main(String[] args)
     {
+        createDirectoryIfNotExists();
         initLaF();
         initGUI();
+        Date date = new Date();
+
+        Calendar calendar = GregorianCalendar.getInstance();
+        calendar.setTime(date);
     }
 
     private static void initGUI()
@@ -17,7 +37,7 @@ public class Application
             @Override
             public void run()
             {
-                new MainView();
+                new MainView(events);
             }
         });
     }
@@ -31,6 +51,36 @@ public class Application
         catch (Exception e)
         {
             System.err.printf("LaF could not be initialized\n%s", e);
+        }
+    }
+
+    private static void createDirectoryIfNotExists()
+    {
+        File directory = new File(PathHolder.APP_PATH);
+        if (!directory.exists())
+        {
+            boolean result = directory.mkdir();
+            try
+            {
+                Files.createFile(Path.of(PathHolder.FILE_PATH));
+                XMLController.marshal(new Events());
+            }
+            catch (IOException | JAXBException e)
+            {
+                throw new RuntimeException(e);
+            }
+        }
+
+        else
+        {
+            try
+            {
+                events = XMLController.unmarshal();
+            }
+            catch (JAXBException | FileNotFoundException e)
+            {
+                throw new RuntimeException(e);
+            }
         }
     }
 }

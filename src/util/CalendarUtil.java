@@ -1,5 +1,7 @@
 package util;
 
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.lang.reflect.Array;
 import java.util.Arrays;
@@ -25,5 +27,13 @@ public class CalendarUtil
     public static String getMonthWithIndex(int i)
     {
         return (String) Array.get(MONTHS, i);
+    }
+
+    public static JLabel createTitleLabel(String text)
+    {
+        JLabel label = new JLabel(text, SwingConstants.CENTER);
+        label.setBorder(new EmptyBorder(20, 20, 20, 20));
+        label.setFont(new Font("", Font.BOLD, 35));
+        return label;
     }
 }
