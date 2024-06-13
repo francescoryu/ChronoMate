@@ -1,7 +1,6 @@
 package ch.francescoryu.model;
 
 import jakarta.xml.bind.annotation.XmlAccessType;
-import jakarta.xml.bind.annotation.XmlAccessorOrder;
 import jakarta.xml.bind.annotation.XmlAccessorType;
 import jakarta.xml.bind.annotation.XmlRootElement;
 
@@ -12,25 +11,25 @@ import java.util.List;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class Events
 {
-    private List<EventDate> eventDateList;
+    private List<EventModel> eventModelList;
 
     public Events()
     {
-        eventDateList = new ArrayList<>();
+        eventModelList = new ArrayList<>();
     }
 
-    public Events(List<EventDate> eventDateList)
+    public Events(List<EventModel> eventModelList)
     {
-        this.eventDateList = eventDateList;
+        this.eventModelList = eventModelList;
     }
 
-    public List<EventDate> getEventDateList()
+    public List<EventModel> getEventList()
     {
-        return eventDateList;
+        return eventModelList;
     }
 
-    public void setEventDayList(List<EventDate> eventDateList)
+    public void setEvenList(List<EventModel> eventModelList)
     {
-        this.eventDateList = eventDateList;
+        this.eventModelList = eventModelList;
     }
 }

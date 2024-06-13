@@ -46,13 +46,11 @@ public class MainView
 
     private void initListeners()
     {
-        dateChangedListener = new DateChangedListener()
+        dateChangedListener = eventDate ->
         {
-            @Override
-            public void dateChanged(int day, int month, int year)
-            {
-                dayEventArea.setLabelText(day + "." + month + "." + year);
-            }
+            splitPane.setDividerLocation(0.25);
+            frame.revalidate();
+            frame.repaint();
         };
     }
 
@@ -91,8 +89,6 @@ public class MainView
     private void initFrame()
     {
         frame = new JFrame();
-        frame.setExtendedState(Frame.MAXIMIZED_BOTH);
-        frame.setLocationRelativeTo(null);
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         frame.setTitle("ChronoMate");
         frame.setLayout(new BorderLayout());
@@ -101,6 +97,9 @@ public class MainView
 
         frame.add(titlePanel, BorderLayout.NORTH);
         frame.add(splitPane, BorderLayout.CENTER);
+
+        frame.setMinimumSize(new Dimension(500, 500));
+        frame.setLocationRelativeTo(null);
         frame.setVisible(true);
     }
 

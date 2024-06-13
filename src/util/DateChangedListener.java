@@ -1,8 +1,8 @@
 package util;
 
-import ch.francescoryu.model.EventDate;
+import java.time.LocalDateTime;
 
 public interface DateChangedListener
 {
-    void dateChanged(int day, int month, int year);
+    void dateChanged(LocalDateTime eventDate);
 }

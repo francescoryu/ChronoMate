@@ -1,7 +1,6 @@
 package ch.francescoryu.view.panels;
 
-import ch.francescoryu.model.EventDate;
-import ch.francescoryu.model.EventDay;
+import ch.francescoryu.model.EventModel;
 import ch.francescoryu.model.Events;
 import util.CalendarUtil;
 import util.DateChangedListener;
@@ -10,13 +9,20 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Comparator;
 import java.util.GregorianCalendar;
-import java.util.Random;
 
 public class CalendarArea
 {
+    private static final Cursor HAND_CURSOR = new Cursor(Cursor.HAND_CURSOR);
+    private static final Cursor DEFAULT_CURSOR = new Cursor(Cursor.DEFAULT_CURSOR);
+
     private int currentYear;
     private int currentMonth;
     private int todayDay;
@@ -31,23 +37,11 @@ public class CalendarArea
     private final DateChangedListener dateChangedListener;
     private Events events;
 
-    private ArrayList<Integer> dayList;
-    private ArrayList<Integer> monthList;
-    private ArrayList<Integer> yearList;
-
     public CalendarArea(DateChangedListener dateChangedListener, Events events)
     {
         this.dateChangedListener = dateChangedListener;
         this.events = events;
-        initLists();
         initCalendarPanel();
-    }
-
-    private void initLists()
-    {
-        dayList = new ArrayList<>();
-        monthList = new ArrayList<>();
-        yearList = new ArrayList<>();
     }
 
     private void initCalendarPanel()
@@ -63,17 +57,6 @@ public class CalendarArea
         for (int year = 1900; year <= 2100; year++)
         {
             yearComboBox.addItem(year);
-            yearList.add(year);
-        }
-
-        for (int month = 1; month <= 12; month++)
-        {
-            monthList.add(month);
-        }
-
-        for (int day = 1; day <= 31; day++)
-        {
-            dayList.add(day);
         }
 
         String[] months = CalendarUtil.MONTHS;
@@ -98,7 +81,11 @@ public class CalendarArea
         topPanel.add(monthComboBox);
         topPanel.add(todayButton);
 
-        contentPanel = new JPanel(new GridLayout(0, 7));
+        GridLayout gridLayout = new GridLayout(0, 7);
+        gridLayout.setHgap(1);
+        gridLayout.setVgap(1);
+
+        contentPanel = new JPanel(gridLayout);
         contentPanel.setBackground(null);
 
         calendarPanel = new JPanel();
@@ -152,6 +139,23 @@ public class CalendarArea
     {
         contentPanel.removeAll();
 
+        populateDaysOfWeek();
+
+        Calendar calendar = new GregorianCalendar(currentYear, currentMonth, 1);
+        int startDay = calendar.get(Calendar.DAY_OF_WEEK);
+        int daysInMonth = calendar.getActualMaximum(Calendar.DAY_OF_MONTH);
+
+        populateEmptyLabels(startDay);
+
+        populateDaysWithEvents(daysInMonth);
+
+        contentPanel.revalidate();
+        contentPanel.repaint();
+    }
+
+
+    private void populateDaysOfWeek()
+    {
         String[] days = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
         for (String day : days)
         {
@@ -159,72 +163,124 @@ public class CalendarArea
             dayLabel.setFont(CalendarUtil.getCalendarItemsFont(true));
             contentPanel.add(dayLabel);
         }
+    }
 
-        Calendar calendar = new GregorianCalendar(currentYear, currentMonth, 1);
-        int startDay = calendar.get(Calendar.DAY_OF_WEEK);
-        int daysInMonth = calendar.getActualMaximum(Calendar.DAY_OF_MONTH);
-
+    private void populateEmptyLabels(int startDay)
+    {
         for (int i = 1; i < startDay; i++)
         {
             JLabel emptyLabel = new JLabel();
             contentPanel.add(emptyLabel);
         }
+    }
 
+    private void populateDaysWithEvents(int daysInMonth)
+    {
         for (int day = 1; day <= daysInMonth; day++)
         {
             JLabel label = new JLabel(String.valueOf(day));
             label.setFont(new Font("", Font.PLAIN, 12));
 
             JPanel buttonPanel = new JPanel();
-            buttonPanel.setLayout(new GridLayout(0, 1));
             buttonPanel.setBorder(null);
             buttonPanel.setOpaque(true);
             buttonPanel.setBackground(new Color(0, 0, 0, 0));
+            buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.Y_AXIS));
 
-            for (EventDate eventDate : events.getEventDateList())
-            {
-                if (eventDate.getMonth() == (currentMonth + 1) && eventDate.getYear() == currentYear && eventDate.getDay() == day)
-                {
-                    for (EventDay eventDay : eventDate.getEventDayList())
-                    {
-
-                        JLabel eventLabel = new JLabel(eventDay.getEvent());
-                        eventLabel.setOpaque(true);
-                        eventLabel.setBackground(Color.decode("#a1c9e3"));
-                        buttonPanel.add(eventLabel);
-                    }
-                }
-            }
-
-            JButton dayButton = new JButton();
-            dayButton.setBackground(null);
-            dayButton.setLayout(new BorderLayout());
-            dayButton.add(label, BorderLayout.NORTH);
-            dayButton.add(buttonPanel, BorderLayout.CENTER);
-
-            if (day == todayDay && currentMonth == todayMonth && currentYear == todayYear)
-            {
-                label.setBackground(Color.decode("#e3e3e3"));
-                label.setOpaque(true);
-            }
-
-            dayButton.setFont(CalendarUtil.getCalendarItemsFont(false));
-
-            int finalDay = day;
-            dayButton.addActionListener(new ActionListener()
+            JScrollPane scrollPane = new JScrollPane(buttonPanel);
+            scrollPane.addMouseListener(new MouseAdapter()
             {
                 @Override
-                public void actionPerformed(ActionEvent e)
+                public void mouseEntered(MouseEvent e)
                 {
-                    dateChangedListener.dateChanged(finalDay, currentMonth + 1, currentYear);
+                    scrollPane.setCursor(HAND_CURSOR);
+                }
+
+                @Override
+                public void mouseExited(MouseEvent e)
+                {
+                    scrollPane.setCursor(DEFAULT_CURSOR);
+                }
+
+                @Override
+                public void mouseClicked(MouseEvent e)
+                {
+                    System.out.println("Clicked");
                 }
             });
 
-            contentPanel.add(dayButton);
-        }
+            scrollPane.setBorder(null);
+            scrollPane.getHorizontalScrollBar().setUnitIncrement(16);
 
-        contentPanel.revalidate();
-        contentPanel.repaint();
+            JPanel panel = new JPanel();
+
+            panel.addMouseListener(new MouseAdapter()
+            {
+                @Override
+                public void mouseClicked(MouseEvent e)
+                {
+                    System.out.println("Clicked");
+                }
+
+                @Override
+                public void mouseEntered(MouseEvent e)
+                {
+                    scrollPane.setCursor(HAND_CURSOR);
+                }
+
+                @Override
+                public void mouseExited(MouseEvent e)
+                {
+                    scrollPane.setCursor(DEFAULT_CURSOR);
+                }
+            });
+
+            panel.setBackground(Color.WHITE);
+            panel.setLayout(new BorderLayout());
+            panel.add(label, BorderLayout.NORTH);
+            panel.add(scrollPane, BorderLayout.CENTER);
+
+            LocalDateTime currentDateTime = LocalDateTime.of(currentYear, currentMonth + 1, day, 0, 0);
+
+            events.getEventList().sort(Comparator.comparing(EventModel::isWholeDay).reversed()
+                    .thenComparing((event1, event2) -> event2.getDuration().compareTo(event1.getDuration())));
+
+            for (EventModel event : events.getEventList())
+            {
+                if (isDateInRange(currentDateTime, event))
+                {
+                    JLabel eventLabel = new JLabel(event.getTitle());
+                    eventLabel.setOpaque(true);
+                    eventLabel.setBackground(Color.decode(event.getLabelColor()));
+                    eventLabel.setHorizontalAlignment(SwingConstants.LEFT);
+
+                    eventLabel.setMaximumSize(new Dimension(Integer.MAX_VALUE, eventLabel.getPreferredSize().height));
+                    eventLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+                    buttonPanel.add(eventLabel);
+                }
+            }
+
+            if (day == todayDay && currentMonth == todayMonth && currentYear == todayYear)
+            {
+                panel.setOpaque(true);
+                panel.setBackground(Color.decode("#e3e3e3"));
+            }
+
+            panel.setFont(CalendarUtil.getCalendarItemsFont(false));
+
+
+            contentPanel.add(panel);
+        }
+    }
+
+    private boolean isDateInRange(LocalDateTime date, EventModel eventModel)
+    {
+        LocalDate dateOnly = date.toLocalDate();
+        LocalDate startOnly = eventModel.getStartDateTime().toLocalDate();
+        LocalDate endOnly = eventModel.getEndDateTime().toLocalDate();
+
+        return !dateOnly.isBefore(startOnly) && !dateOnly.isAfter(endOnly);
     }
 
     public JPanel getPanel()

@@ -1,10 +1,10 @@
-import ch.francescoryu.model.DurationTimePoint;
-import ch.francescoryu.model.EventDate;
-import ch.francescoryu.model.EventDay;
+import ch.francescoryu.model.EventModel;
 import ch.francescoryu.model.Events;
 import jakarta.xml.bind.JAXBException;
 import xml.XMLController;
 
+import java.awt.*;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -13,21 +13,25 @@ public class TestData
 {
     public static void main(String[] args)
     {
-        DurationTimePoint s1 = new DurationTimePoint(9, 30);
-        DurationTimePoint e1 = new DurationTimePoint(18, 30);
+        LocalDateTime s1 = LocalDateTime.of(2024, 6, 11, 12, 15);
+        LocalDateTime e1 = LocalDateTime.of(2024, 6, 13, 12, 15);
 
-        DurationTimePoint s2 = new DurationTimePoint(11, 30);
-        DurationTimePoint e2 = new DurationTimePoint(12, 45);
+        EventModel event1 = new EventModel("make nap", "I need it", s1, e1, "#addbba", true);
 
-        EventDay eventDay1 = new EventDay("Tea Party", "I need to buy tea", s1, e1);
-        EventDay eventDay2 = new EventDay("Quick Nap", "Eat after nap", s2, e2);
+        LocalDateTime s2 = LocalDateTime.of(2024, 6, 12, 0, 0);
+        LocalDateTime e2 = LocalDateTime.of(2024, 6, 18, 0, 0);
 
-        EventDate eventDate1 = new EventDate(1, 1, 2024, Arrays.asList(eventDay1, eventDay2));
-        EventDate eventDate2 = new EventDate(2, 2, 2024, Arrays.asList(eventDay1, eventDay2));
+        EventModel event2 = new EventModel("PTO", "I need it", s2, e2, "#ceaddb", true);
 
-        List<EventDate> eventDayList = new ArrayList<>();
-        eventDayList.add(eventDate1);
-        eventDayList.add(eventDate2);
+        LocalDateTime s3 = LocalDateTime.of(2024, 6, 28, 12, 15);
+        LocalDateTime e3 = LocalDateTime.of(2024, 6, 28, 13, 15);
+
+        EventModel event3 = new EventModel("ONE DAY", "I need it", s3, e3, "#ceaddb", false);
+
+        List<EventModel> eventDayList = new ArrayList<>();
+        eventDayList.add(event1);
+        eventDayList.add(event2);
+        eventDayList.add(event3);
 
         Events events = new Events(eventDayList);
 

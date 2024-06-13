@@ -1,6 +1,5 @@
 package ch.francescoryu.view.panels;
 
-import ch.francescoryu.model.EventDate;
 import util.CalendarUtil;
 
 import javax.swing.*;
@@ -13,17 +12,22 @@ public class DayEventArea
 
     public DayEventArea()
     {
+        initComponents();
         initPanel();
     }
 
     private void initPanel()
     {
+        dayEventPanel = new JPanel();
+        dayEventPanel.add(dateLabel);
+    }
+
+    private void initComponents()
+    {
         dateLabel = new JLabel();
         dateLabel.setBackground(Color.RED);
         dateLabel.setVerticalAlignment(SwingConstants.CENTER);
         dateLabel.setFont(CalendarUtil.getCalendarItemsFont(false));
-        dayEventPanel = new JPanel();
-        dayEventPanel.add(dateLabel);
     }
 
     public JPanel getPanel()
@@ -31,8 +35,4 @@ public class DayEventArea
         return dayEventPanel;
     }
 
-    public void setLabelText(String text)
-    {
-        dateLabel.setText(text);
-    }
 }
