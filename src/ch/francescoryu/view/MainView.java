@@ -1,7 +1,6 @@
 package ch.francescoryu.view;
 
 import ch.francescoryu.model.Events;
-import ch.francescoryu.util.DateChangedListener;
 import ch.francescoryu.util.MenuAreaListener;
 import ch.francescoryu.view.areas.CalendarArea;
 import ch.francescoryu.view.areas.MenuArea;
@@ -20,8 +19,6 @@ public class MainView
     private JPanel calendarPanel;
 
     private JFrame frame;
-
-    private DateChangedListener dateChangedListener;
     private MenuAreaListener menuAreaListener;
 
     private Events events;
@@ -42,12 +39,6 @@ public class MainView
 
     private void initListeners()
     {
-        dateChangedListener = eventDate ->
-        {
-            frame.revalidate();
-            frame.repaint();
-        };
-
         menuAreaListener = new MenuAreaListener()
         {
             @Override
@@ -72,10 +63,9 @@ public class MainView
 
     private void initCalendarPanel()
     {
-        calendarArea = new CalendarArea(dateChangedListener, events);
+        calendarArea = new CalendarArea(events);
         calendarPanel = calendarArea.getPanel();
         calendarPanel.setBackground(Color.decode("#a3ccbe"));
-        //calendarPanel.setBackground(Color.decode("#d1d1d1"));
     }
 
     private void initFrame()

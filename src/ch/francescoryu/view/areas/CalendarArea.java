@@ -3,7 +3,6 @@ package ch.francescoryu.view.areas;
 import ch.francescoryu.model.EventModel;
 import ch.francescoryu.model.Events;
 import ch.francescoryu.util.CalendarUtil;
-import ch.francescoryu.util.DateChangedListener;
 import ch.francescoryu.view.components.buttons.PrimaryButton;
 
 import javax.swing.*;
@@ -32,13 +31,10 @@ public class CalendarArea
 
     private JPanel calendarPanel;
     private JPanel contentPanel;
-
-    private final DateChangedListener dateChangedListener;
     private Events events;
 
-    public CalendarArea(DateChangedListener dateChangedListener, Events events)
+    public CalendarArea(Events events)
     {
-        this.dateChangedListener = dateChangedListener;
         this.events = events;
         initCalendarPanel();
     }
