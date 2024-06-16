@@ -1,9 +1,11 @@
-package util;
+package ch.francescoryu.util;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.lang.reflect.Array;
+import java.util.Objects;
 
 public class CalendarUtil
 {
@@ -13,14 +15,14 @@ public class CalendarUtil
                     "July", "August", "September", "October", "November", "December"
             };
 
-    public static Font getCalendarItemsFont(boolean isBold)
+    public static Font getCalendarItemsFont(boolean isBold, int fontSize)
     {
         if (isBold)
         {
-            return new Font("", Font.BOLD, 20);
+            return new Font("", Font.BOLD, fontSize);
         }
 
-        return new Font("", Font.PLAIN, 20);
+        return new Font("", Font.PLAIN, fontSize);
     }
 
     public static String getMonthWithIndex(int i)
@@ -34,5 +36,18 @@ public class CalendarUtil
         label.setBorder(new EmptyBorder(20, 20, 20, 20));
         label.setFont(new Font("", Font.BOLD, 35));
         return label;
+    }
+
+    public static void addIconToButton(JButton button, String path)
+    {
+        try
+        {
+            Image img = ImageIO.read(Objects.requireNonNull(CalendarUtil.class.getResource(path)));
+            button.setIcon(new ImageIcon(img));
+        }
+        catch (Exception ex)
+        {
+            System.out.println(ex);
+        }
     }
 }

@@ -1,4 +1,4 @@
-package util;
+package ch.francescoryu.util;
 
 import java.time.LocalDateTime;
 

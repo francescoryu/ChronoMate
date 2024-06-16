@@ -1,19 +1,18 @@
-package ch.francescoryu.view.panels;
+package ch.francescoryu.view.areas;
 
 import ch.francescoryu.model.EventModel;
 import ch.francescoryu.model.Events;
-import util.CalendarUtil;
-import util.DateChangedListener;
+import ch.francescoryu.util.CalendarUtil;
+import ch.francescoryu.util.DateChangedListener;
+import ch.francescoryu.view.components.buttons.PrimaryButton;
 
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Comparator;
 import java.util.GregorianCalendar;
@@ -47,12 +46,11 @@ public class CalendarArea
     private void initCalendarPanel()
     {
         JPanel topPanel = new JPanel();
-        topPanel.setBackground(Color.LIGHT_GRAY);
+        topPanel.setBackground(Color.decode("#b3b3b3"));
         topPanel.setLayout(new FlowLayout());
 
         yearComboBox = new JComboBox<>();
-        yearComboBox.setFont(CalendarUtil.getCalendarItemsFont(false));
-        yearComboBox.setBackground(null);
+        yearComboBox.setFont(CalendarUtil.getCalendarItemsFont(true, 18));
 
         for (int year = 1900; year <= 2100; year++)
         {
@@ -61,12 +59,9 @@ public class CalendarArea
 
         String[] months = CalendarUtil.MONTHS;
         monthComboBox = new JComboBox<>(months);
-        monthComboBox.setFont(CalendarUtil.getCalendarItemsFont(false));
-        monthComboBox.setBackground(null);
+        monthComboBox.setFont(CalendarUtil.getCalendarItemsFont(true, 18));
 
-        JButton todayButton = new JButton("Today");
-        todayButton.setFont(CalendarUtil.getCalendarItemsFont(false));
-        todayButton.setBackground(null);
+        JButton todayButton = new PrimaryButton("Today", 15);
         todayButton.addActionListener(new ActionListener()
         {
             @Override
@@ -87,6 +82,7 @@ public class CalendarArea
 
         contentPanel = new JPanel(gridLayout);
         contentPanel.setBackground(null);
+        contentPanel.setBorder(new EmptyBorder(1, 1, 1, 1));
 
         calendarPanel = new JPanel();
         calendarPanel.setLayout(new BorderLayout());
@@ -160,7 +156,7 @@ public class CalendarArea
         for (String day : days)
         {
             JLabel dayLabel = new JLabel(day, SwingConstants.CENTER);
-            dayLabel.setFont(CalendarUtil.getCalendarItemsFont(true));
+            dayLabel.setFont(CalendarUtil.getCalendarItemsFont(true, 12));
             contentPanel.add(dayLabel);
         }
     }
@@ -188,53 +184,12 @@ public class CalendarArea
             buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.Y_AXIS));
 
             JScrollPane scrollPane = new JScrollPane(buttonPanel);
-            scrollPane.addMouseListener(new MouseAdapter()
-            {
-                @Override
-                public void mouseEntered(MouseEvent e)
-                {
-                    scrollPane.setCursor(HAND_CURSOR);
-                }
-
-                @Override
-                public void mouseExited(MouseEvent e)
-                {
-                    scrollPane.setCursor(DEFAULT_CURSOR);
-                }
-
-                @Override
-                public void mouseClicked(MouseEvent e)
-                {
-                    System.out.println("Clicked");
-                }
-            });
-
             scrollPane.setBorder(null);
             scrollPane.getHorizontalScrollBar().setUnitIncrement(16);
+            scrollPane.getHorizontalScrollBar().setPreferredSize(new Dimension(0, 0));
+            scrollPane.getVerticalScrollBar().setPreferredSize(new Dimension(0, 0));
 
             JPanel panel = new JPanel();
-
-            panel.addMouseListener(new MouseAdapter()
-            {
-                @Override
-                public void mouseClicked(MouseEvent e)
-                {
-                    System.out.println("Clicked");
-                }
-
-                @Override
-                public void mouseEntered(MouseEvent e)
-                {
-                    scrollPane.setCursor(HAND_CURSOR);
-                }
-
-                @Override
-                public void mouseExited(MouseEvent e)
-                {
-                    scrollPane.setCursor(DEFAULT_CURSOR);
-                }
-            });
-
             panel.setBackground(Color.WHITE);
             panel.setLayout(new BorderLayout());
             panel.add(label, BorderLayout.NORTH);
@@ -243,7 +198,8 @@ public class CalendarArea
             LocalDateTime currentDateTime = LocalDateTime.of(currentYear, currentMonth + 1, day, 0, 0);
 
             events.getEventList().sort(Comparator.comparing(EventModel::isWholeDay).reversed()
-                    .thenComparing((event1, event2) -> event2.getDuration().compareTo(event1.getDuration())));
+                    .thenComparing((event1, event2) -> event2.getStartDateTime().compareTo(event1.getStartDateTime()))
+                    .thenComparing((event1, event2) -> event2.getEndDateTime().compareTo(event1.getEndDateTime())));
 
             for (EventModel event : events.getEventList())
             {
@@ -266,9 +222,6 @@ public class CalendarArea
                 panel.setOpaque(true);
                 panel.setBackground(Color.decode("#e3e3e3"));
             }
-
-            panel.setFont(CalendarUtil.getCalendarItemsFont(false));
-
 
             contentPanel.add(panel);
         }

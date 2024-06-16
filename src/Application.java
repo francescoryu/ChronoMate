@@ -1,8 +1,8 @@
 import ch.francescoryu.model.Events;
 import ch.francescoryu.view.MainView;
 import jakarta.xml.bind.JAXBException;
-import util.PathHolder;
-import xml.XMLController;
+import ch.francescoryu.util.PathHolder;
+import ch.francescoryu.xml.XMLController;
 
 import javax.swing.*;
 import java.io.File;

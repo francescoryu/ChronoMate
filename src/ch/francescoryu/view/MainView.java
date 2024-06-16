@@ -1,10 +1,11 @@
 package ch.francescoryu.view;
 
 import ch.francescoryu.model.Events;
-import ch.francescoryu.view.panels.CalendarArea;
-import ch.francescoryu.view.panels.DayEventArea;
-import util.CalendarUtil;
-import util.DateChangedListener;
+import ch.francescoryu.util.DateChangedListener;
+import ch.francescoryu.util.MenuAreaListener;
+import ch.francescoryu.view.areas.CalendarArea;
+import ch.francescoryu.view.areas.MenuArea;
+import ch.francescoryu.view.dialogs.AddEventDialog;
 
 import javax.swing.*;
 import java.awt.*;
@@ -12,19 +13,16 @@ import java.net.URL;
 
 public class MainView
 {
-    private JLabel titleLabel;
-
+    private MenuArea menuArea;
     private CalendarArea calendarArea;
-    private DayEventArea dayEventArea;
 
-    private JPanel titlePanel;
-    private JPanel dayEventPanel;
+    private JPanel menuPanel;
     private JPanel calendarPanel;
 
-    private JSplitPane splitPane;
     private JFrame frame;
 
     private DateChangedListener dateChangedListener;
+    private MenuAreaListener menuAreaListener;
 
     private Events events;
 
@@ -37,10 +35,8 @@ public class MainView
     private void init()
     {
         initListeners();
-        initTitlePanel();
-        initDayEventPanel();
+        initMenuArea();
         initCalendarPanel();
-        initSplitPane();
         initFrame();
     }
 
@@ -48,42 +44,38 @@ public class MainView
     {
         dateChangedListener = eventDate ->
         {
-            splitPane.setDividerLocation(0.25);
             frame.revalidate();
             frame.repaint();
         };
+
+        menuAreaListener = new MenuAreaListener()
+        {
+            @Override
+            public void pressedAddEventButton()
+            {
+                new AddEventDialog(frame);
+            }
+
+            @Override
+            public void pressedSettingsButton()
+            {
+
+            }
+        };
     }
 
-    private void initTitlePanel()
+    private void initMenuArea()
     {
-        titleLabel = CalendarUtil.createTitleLabel("ChronoMate");
-        titlePanel = new JPanel();
-        titlePanel.add(titleLabel);
-        titlePanel.setBackground(Color.decode("#b6ba9c"));
-    }
-
-    private void initDayEventPanel()
-    {
-        dayEventArea = new DayEventArea();
-        dayEventPanel = dayEventArea.getPanel();
-        dayEventPanel.setBackground(Color.decode("#abd1d0"));
+        menuArea = new MenuArea(menuAreaListener);
+        menuPanel = menuArea.getPanel();
     }
 
     private void initCalendarPanel()
     {
         calendarArea = new CalendarArea(dateChangedListener, events);
         calendarPanel = calendarArea.getPanel();
-        calendarPanel.setBackground(Color.decode("#D1ABAC"));
-    }
-
-    private void initSplitPane()
-    {
-        splitPane = new JSplitPane();
-        splitPane.setLeftComponent(dayEventPanel);
-        splitPane.setRightComponent(calendarPanel);
-        splitPane.setResizeWeight(0.0);
-        splitPane.setBorder(null);
-        splitPane.setBackground(null);
+        calendarPanel.setBackground(Color.decode("#a3ccbe"));
+        //calendarPanel.setBackground(Color.decode("#d1d1d1"));
     }
 
     private void initFrame()
@@ -95,9 +87,10 @@ public class MainView
 
         initFrameIcon();
 
-        frame.add(titlePanel, BorderLayout.NORTH);
-        frame.add(splitPane, BorderLayout.CENTER);
+        frame.add(menuPanel, BorderLayout.NORTH);
+        frame.add(calendarPanel, BorderLayout.CENTER);
 
+        //frame.setUndecorated(true);
         frame.setMinimumSize(new Dimension(500, 500));
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);

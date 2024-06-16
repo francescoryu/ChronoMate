@@ -1,10 +1,10 @@
-package xml;
+package ch.francescoryu.xml;
 
+import ch.francescoryu.util.PathHolder;
 import ch.francescoryu.model.Events;
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.JAXBException;
 import jakarta.xml.bind.Marshaller;
-import util.PathHolder;
 
 import java.io.File;
 import java.io.FileNotFoundException;
