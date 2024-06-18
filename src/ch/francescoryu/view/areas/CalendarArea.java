@@ -236,4 +236,10 @@ public class CalendarArea
     {
         return calendarPanel;
     }
+
+    public void reload(Events events)
+    {
+        this.events = events;
+        updateCalendar();
+    }
 }

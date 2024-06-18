@@ -32,4 +32,9 @@ public class Events
     {
         this.eventModelList = eventModelList;
     }
+
+    public void addEvent(EventModel eventModel)
+    {
+        eventModelList.add(eventModel);
+    }
 }

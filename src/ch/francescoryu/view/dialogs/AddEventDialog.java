@@ -1,6 +1,9 @@
 package ch.francescoryu.view.dialogs;
 
+import ch.francescoryu.model.EventModel;
+import ch.francescoryu.util.AddEventListener;
 import ch.francescoryu.util.CalendarUtil;
+import ch.francescoryu.util.ToolTipHolder;
 import ch.francescoryu.view.DatePicker;
 import ch.francescoryu.view.MainView;
 import ch.francescoryu.view.components.buttons.PrimaryButton;
@@ -11,14 +14,15 @@ import ch.francescoryu.view.components.spinner.TimeSpinner;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 import java.net.URL;
-import java.time.DateTimeException;
-import java.time.LocalDate;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
+import java.util.Date;
 
 public class AddEventDialog
 {
+    private AddEventListener addEventListener;
+
     private LocalDate startLocalDate;
     private LocalDate endLocalDate;
 
@@ -31,6 +35,7 @@ public class AddEventDialog
 
     private JButton startDateButton;
     private JButton endDateButton;
+    private JButton colorPickerButton;
     private JButton cancelButton;
     private JButton saveButton;
 
@@ -44,10 +49,13 @@ public class AddEventDialog
     private DatePicker startDatePicker;
     private DatePicker endDatePicker;
 
+    private EventModel eventModel;
+
     private JFrame frame;
 
-    public AddEventDialog(Window parent)
+    public AddEventDialog(Window parent, AddEventListener addEventListener)
     {
+        this.addEventListener = addEventListener;
         this.parent = parent;
         init();
     }
@@ -86,35 +94,40 @@ public class AddEventDialog
         startDateButton.addActionListener(e ->
         {
             startDatePicker = new DatePicker(frame);
-            createNewDatePicker(startDateTextField, startDatePicker, startLocalDate);
+            startLocalDate = startDatePicker.getSelectedDate();
+            startDateTextField.setText(getDateFormatted(startLocalDate));
         });
 
         endDateButton = new PrimaryButton("...", 15);
         endDateButton.addActionListener(e ->
         {
             endDatePicker = new DatePicker(frame);
-            createNewDatePicker(endDateTextField, endDatePicker, endLocalDate);
+            endLocalDate = endDatePicker.getSelectedDate();
+            endDateTextField.setText(getDateFormatted(endLocalDate));
         });
+
+        colorPickerButton = new JButton("Your event");
+        colorPickerButton.setFont(new Font("", Font.PLAIN, 15));
+        colorPickerButton.setBorderPainted(false);
+        colorPickerButton.setOpaque(true);
+        colorPickerButton.setBackground(Color.decode("#ceaddb"));
+        CalendarUtil.addToolTipToComponent(colorPickerButton, ToolTipHolder.COLOR_PICKER_BUTTON);
 
         startSpinner = new TimeSpinner();
         endSpinner = new TimeSpinner();
 
         wholeDayCheckBox = new JCheckBox();
-        wholeDayCheckBox.addItemListener(new ItemListener()
+        wholeDayCheckBox.addItemListener(e ->
         {
-            @Override
-            public void itemStateChanged(ItemEvent e)
+            if (e.getStateChange() == ItemEvent.SELECTED)
             {
-                if (e.getStateChange() == ItemEvent.SELECTED)
-                {
-                    startSpinner.setEnabled(false);
-                    endSpinner.setEnabled(false);
-                }
-                else
-                {
-                    startSpinner.setEnabled(true);
-                    endSpinner.setEnabled(true);
-                }
+                startSpinner.setEnabled(false);
+                endSpinner.setEnabled(false);
+            }
+            else
+            {
+                startSpinner.setEnabled(true);
+                endSpinner.setEnabled(true);
             }
         });
     }
@@ -264,6 +277,23 @@ public class AddEventDialog
         gbc.weightx = 1.0;
         gbc.weighty = 0;
         contentPanel.add(endSpinner, gbc);
+
+        //-------------------------------------------------------------------
+
+        gbc.gridx = 0;
+        gbc.gridy = 7;
+        gbc.gridwidth = 1;
+        gbc.fill = GridBagConstraints.NONE;
+        gbc.weightx = 0.0;
+        gbc.weighty = 0;
+        contentPanel.add(new AddEventLabel("Select color"), gbc);
+
+        gbc.gridx = 1;
+        gbc.gridy = 7;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
+        gbc.weightx = 1.0;
+        gbc.weighty = 0;
+        contentPanel.add(colorPickerButton, gbc);
     }
 
     private void initButtonPanel()
@@ -284,8 +314,42 @@ public class AddEventDialog
 
         saveButton.addActionListener(e ->
         {
+            createNewEventModel();
 
+            addEventListener.onSave();
         });
+    }
+
+    private void createNewEventModel()
+    {
+        eventModel = new EventModel();
+        eventModel.setTitle(titleTextField.getText());
+        eventModel.setDescription(descriptionTextArea.getText());
+        eventModel.setWholeDay(wholeDayCheckBox.isSelected());
+
+        LocalTime startLocalTime = convertToLocalTime((Date) startSpinner.getValue());
+        LocalDateTime startLocalDateTime = LocalDateTime.of(startLocalDate, startLocalTime);
+        eventModel.setStartDateTime(startLocalDateTime);
+
+        LocalTime endLocalTime = convertToLocalTime((Date) endSpinner.getValue());
+        LocalDateTime endLocalDateTime = LocalDateTime.of(endLocalDate, endLocalTime);
+        eventModel.setEndDateTime(endLocalDateTime);
+
+        Color labelColor = colorPickerButton.getBackground();
+        int r = labelColor.getRed();
+        int g = labelColor.getGreen();
+        int b = labelColor.getBlue();
+
+        String hex = String.format("#%02x%02x%02x", r, g, b);
+
+        eventModel.setLabelColor(hex);
+    }
+
+    private LocalTime convertToLocalTime(Date date)
+    {
+        Instant instant = date.toInstant();
+        ZoneId defaultZoneId = ZoneId.systemDefault();
+        return LocalTime.ofInstant(instant, defaultZoneId);
     }
 
     private void initFrame()
@@ -327,18 +391,8 @@ public class AddEventDialog
         return localDate.format(formatter);
     }
 
-    private void createNewDatePicker(JTextField titleTextField, DatePicker datePicker, LocalDate localDate)
+    public EventModel getEvent()
     {
-
-        try
-        {
-            localDate = datePicker.getSelectedDate();
-            titleTextField.setText(getDateFormatted(localDate));
-        }
-
-        catch (DateTimeException ignored)
-        {
-            //Ignore exception
-        }
+        return eventModel;
     }
 }

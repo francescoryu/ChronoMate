@@ -1,13 +1,18 @@
 package ch.francescoryu.view;
 
+import ch.francescoryu.model.EventModel;
 import ch.francescoryu.model.Events;
+import ch.francescoryu.util.AddEventListener;
 import ch.francescoryu.util.MenuAreaListener;
 import ch.francescoryu.view.areas.CalendarArea;
 import ch.francescoryu.view.areas.MenuArea;
 import ch.francescoryu.view.dialogs.AddEventDialog;
+import ch.francescoryu.xml.XMLController;
+import jakarta.xml.bind.JAXBException;
 
 import javax.swing.*;
 import java.awt.*;
+import java.io.FileNotFoundException;
 import java.net.URL;
 
 public class MainView
@@ -19,7 +24,11 @@ public class MainView
     private JPanel calendarPanel;
 
     private JFrame frame;
+
     private MenuAreaListener menuAreaListener;
+    private AddEventListener addEventListener;
+
+    private AddEventDialog addEventDialog;
 
     private Events events;
 
@@ -39,12 +48,44 @@ public class MainView
 
     private void initListeners()
     {
+        addEventListener = new AddEventListener()
+        {
+            @Override
+            public void onSave()
+            {
+                EventModel eventModel = addEventDialog.getEvent();
+                events.addEvent(eventModel);
+                try
+                {
+                    XMLController.marshal(events);
+                }
+                catch (JAXBException e)
+                {
+                    throw new RuntimeException(e);
+                }
+
+                try
+                {
+                    events = XMLController.unmarshal();
+                }
+                catch (JAXBException | FileNotFoundException e)
+                {
+                    throw new RuntimeException(e);
+                }
+
+                calendarArea.reload(events);
+
+                frame.revalidate();
+                frame.repaint();
+            }
+        };
+
         menuAreaListener = new MenuAreaListener()
         {
             @Override
             public void pressedAddEventButton()
             {
-                new AddEventDialog(frame);
+                addEventDialog = new AddEventDialog(frame, addEventListener);
             }
 
             @Override

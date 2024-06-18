@@ -50,4 +50,9 @@ public class CalendarUtil
             System.out.println(ex);
         }
     }
+
+    public static void addToolTipToComponent(JComponent component, String text)
+    {
+        component.setToolTipText(text);
+    }
 }
