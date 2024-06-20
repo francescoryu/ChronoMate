@@ -16,20 +16,20 @@ import java.util.GregorianCalendar;
 
 public class Application
 {
-
+    
     private static Events events;
-
+    
     public static void main(String[] args)
     {
         createDirectoryIfNotExists();
         initLaF();
         initGUI();
         Date date = new Date();
-
+        
         Calendar calendar = GregorianCalendar.getInstance();
         calendar.setTime(date);
     }
-
+    
     private static void initGUI()
     {
         SwingUtilities.invokeLater(new Runnable()
@@ -41,43 +41,44 @@ public class Application
             }
         });
     }
-
+    
     private static void initLaF()
     {
         try
         {
             UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
         }
-        catch (Exception e)
+        catch(Exception e)
         {
             System.err.printf("LaF could not be initialized\n%s", e);
         }
     }
-
+    
     private static void createDirectoryIfNotExists()
     {
         File directory = new File(PathHolder.APP_PATH);
-        if (!directory.exists())
+        if(!directory.exists())
         {
             boolean result = directory.mkdir();
             try
             {
                 Files.createFile(Path.of(PathHolder.FILE_PATH));
-                XMLController.marshal(new Events());
+                events = new Events();
+                XMLController.marshal(events);
             }
-            catch (IOException | JAXBException e)
+            catch(IOException | JAXBException e)
             {
                 throw new RuntimeException(e);
             }
         }
-
+        
         else
         {
             try
             {
                 events = XMLController.unmarshal();
             }
-            catch (JAXBException | FileNotFoundException e)
+            catch(JAXBException | FileNotFoundException e)
             {
                 throw new RuntimeException(e);
             }
