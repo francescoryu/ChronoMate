@@ -7,9 +7,13 @@ import ch.francescoryu.view.components.buttons.PrimaryButton;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
+import javax.swing.event.PopupMenuEvent;
+import javax.swing.event.PopupMenuListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Calendar;
@@ -21,11 +25,14 @@ public class CalendarArea
     private static final Cursor HAND_CURSOR = new Cursor(Cursor.HAND_CURSOR);
     private static final Cursor DEFAULT_CURSOR = new Cursor(Cursor.DEFAULT_CURSOR);
 
+    private Window parent;
+
     private int currentYear;
     private int currentMonth;
     private int todayDay;
     private int todayMonth;
     private int todayYear;
+
     private JComboBox<Integer> yearComboBox;
     private JComboBox<String> monthComboBox;
 
@@ -33,8 +40,9 @@ public class CalendarArea
     private JPanel contentPanel;
     private Events events;
 
-    public CalendarArea(Events events)
+    public CalendarArea(Events events, Window parent)
     {
+        this.parent = parent;
         this.events = events;
         initCalendarPanel();
     }
@@ -77,7 +85,7 @@ public class CalendarArea
         gridLayout.setVgap(1);
 
         contentPanel = new JPanel(gridLayout);
-        contentPanel.setBackground(null);
+        contentPanel.setBackground(Color.decode("#d0f0c0"));
         contentPanel.setBorder(new EmptyBorder(1, 1, 1, 1));
 
         calendarPanel = new JPanel();
@@ -173,23 +181,23 @@ public class CalendarArea
             JLabel label = new JLabel(String.valueOf(day));
             label.setFont(new Font("", Font.PLAIN, 12));
 
-            JPanel buttonPanel = new JPanel();
-            buttonPanel.setBorder(null);
-            buttonPanel.setOpaque(true);
-            buttonPanel.setBackground(new Color(0, 0, 0, 0));
-            buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.Y_AXIS));
+            JPanel eventPanel = new JPanel();
+            eventPanel.setBorder(null);
+            eventPanel.setOpaque(true);
+            eventPanel.setBackground(new Color(0, 0, 0, 0));
+            eventPanel.setLayout(new BoxLayout(eventPanel, BoxLayout.Y_AXIS));
 
-            JScrollPane scrollPane = new JScrollPane(buttonPanel);
+            JScrollPane scrollPane = new JScrollPane(eventPanel);
             scrollPane.setBorder(null);
             scrollPane.getHorizontalScrollBar().setUnitIncrement(16);
             scrollPane.getHorizontalScrollBar().setPreferredSize(new Dimension(0, 0));
             scrollPane.getVerticalScrollBar().setPreferredSize(new Dimension(0, 0));
 
-            JPanel panel = new JPanel();
-            panel.setBackground(Color.WHITE);
-            panel.setLayout(new BorderLayout());
-            panel.add(label, BorderLayout.NORTH);
-            panel.add(scrollPane, BorderLayout.CENTER);
+            JPanel dayPanel = new JPanel();
+            dayPanel.setBackground(Color.WHITE);
+            dayPanel.setLayout(new BorderLayout());
+            dayPanel.add(label, BorderLayout.NORTH);
+            dayPanel.add(scrollPane, BorderLayout.CENTER);
 
             LocalDateTime currentDateTime = LocalDateTime.of(currentYear, currentMonth + 1, day, 0, 0);
 
@@ -209,17 +217,29 @@ public class CalendarArea
                     eventLabel.setMaximumSize(new Dimension(Integer.MAX_VALUE, eventLabel.getPreferredSize().height));
                     eventLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-                    buttonPanel.add(eventLabel);
+                    eventLabel.addMouseListener(new MouseAdapter()
+                    {
+                        @Override
+                        public void mouseClicked(MouseEvent e)
+                        {
+                            if (e.getButton() == MouseEvent.BUTTON3)
+                            {
+                                createContextMenu(e, event, eventLabel);
+                            }
+                        }
+                    });
+
+                    eventPanel.add(eventLabel);
                 }
             }
 
             if (day == todayDay && currentMonth == todayMonth && currentYear == todayYear)
             {
-                panel.setOpaque(true);
-                panel.setBackground(Color.decode("#e3e3e3"));
+                dayPanel.setOpaque(true);
+                dayPanel.setBackground(Color.decode("#e3e3e3"));
             }
 
-            contentPanel.add(panel);
+            contentPanel.add(dayPanel);
         }
     }
 
@@ -230,6 +250,57 @@ public class CalendarArea
         LocalDate endOnly = eventModel.getEndDateTime().toLocalDate();
 
         return !dateOnly.isBefore(startOnly) && !dateOnly.isAfter(endOnly);
+    }
+
+    private void createContextMenu(MouseEvent e, EventModel eventModel, JLabel eventLabel)
+    {
+        JMenuItem deleteItem = new JMenuItem("Delete");
+        deleteItem.setBackground(Color.WHITE);
+        deleteItem.addActionListener(actionEvent -> onDeleteAction(eventModel, eventLabel));
+
+        JPopupMenu popupMenu = new JPopupMenu();
+        popupMenu.setBackground(Color.WHITE);
+        popupMenu.add(deleteItem);
+        addPopupListener(popupMenu);
+
+        popupMenu.show(e.getComponent(), e.getX(), e.getY());
+    }
+
+    private void onDeleteAction(EventModel eventModel, JLabel eventLabel)
+    {
+        int result = JOptionPane.showConfirmDialog(eventLabel, "Are you sure you want to delete\n" + "'" + eventLabel.getText() + "'?", "Confirm", JOptionPane.YES_NO_OPTION);
+        if (result == JOptionPane.YES_OPTION)
+        {
+            events.getEventList().remove(eventModel);
+            updateCalendar();
+        }
+    }
+
+    private void addPopupListener(JPopupMenu popupMenu)
+    {
+        popupMenu.addPopupMenuListener(new PopupMenuListener()
+        {
+            @Override
+            public void popupMenuWillBecomeVisible(PopupMenuEvent e)
+            {
+                contentPanel.revalidate();
+                contentPanel.repaint();
+            }
+
+            @Override
+            public void popupMenuWillBecomeInvisible(PopupMenuEvent e)
+            {
+                contentPanel.revalidate();
+                contentPanel.repaint();
+            }
+
+            @Override
+            public void popupMenuCanceled(PopupMenuEvent e)
+            {
+                contentPanel.revalidate();
+                contentPanel.repaint();
+            }
+        });
     }
 
     public JPanel getPanel()

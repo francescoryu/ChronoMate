@@ -1,4 +1,4 @@
-package ch.francescoryu.view;
+package ch.francescoryu.view.pickers;
 
 import ch.francescoryu.util.CalendarUtil;
 import ch.francescoryu.view.components.buttons.PrimaryButton;
@@ -7,8 +7,6 @@ import ch.francescoryu.view.components.buttons.SecondaryButton;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.time.LocalDate;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
@@ -45,7 +43,13 @@ public class DatePicker
     private void initCancelButton()
     {
         cancelButton = new SecondaryButton("Cancel");
-        cancelButton.addActionListener(e -> dialog.dispose());
+        cancelButton.addActionListener(e ->
+        {
+            currentYear = LocalDate.now().getYear();
+            currentMonth = LocalDate.now().getMonthValue() - 1;
+            currentDay = LocalDate.now().getDayOfMonth();
+            dialog.dispose();
+        });
     }
 
     private void initCalendarPanel()
@@ -55,7 +59,7 @@ public class DatePicker
         topPanel.setLayout(new FlowLayout());
 
         yearComboBox = new JComboBox<>();
-        yearComboBox.setFont(CalendarUtil.getCalendarItemsFont(true, 13));
+        yearComboBox.setFont(CalendarUtil.getCalendarItemsFont(false, 13));
 
         for (int year = 1900; year <= 2100; year++)
         {
@@ -64,17 +68,13 @@ public class DatePicker
 
         String[] months = CalendarUtil.MONTHS;
         monthComboBox = new JComboBox<>(months);
-        monthComboBox.setFont(CalendarUtil.getCalendarItemsFont(true, 13));
+        monthComboBox.setFont(CalendarUtil.getCalendarItemsFont(false, 13));
 
         JButton todayButton = new PrimaryButton("Today", 10);
-        todayButton.addActionListener(new ActionListener()
+        todayButton.addActionListener(e ->
         {
-            @Override
-            public void actionPerformed(ActionEvent e)
-            {
-                setCalendarToCurrentDate();
-                updateCalendar();
-            }
+            setCalendarToCurrentDate();
+            updateCalendar();
         });
 
         topPanel.add(yearComboBox);
@@ -110,23 +110,15 @@ public class DatePicker
 
     private void initListeners()
     {
-        monthComboBox.addActionListener(new ActionListener()
+        monthComboBox.addActionListener(e ->
         {
-            @Override
-            public void actionPerformed(ActionEvent e)
-            {
-                currentMonth = monthComboBox.getSelectedIndex();
-                updateCalendar();
-            }
+            currentMonth = monthComboBox.getSelectedIndex();
+            updateCalendar();
         });
-        yearComboBox.addActionListener(new ActionListener()
+        yearComboBox.addActionListener(e ->
         {
-            @Override
-            public void actionPerformed(ActionEvent e)
-            {
-                currentYear = (int) yearComboBox.getSelectedItem();
-                updateCalendar();
-            }
+            currentYear = (int) yearComboBox.getSelectedItem();
+            updateCalendar();
         });
     }
 
@@ -196,14 +188,10 @@ public class DatePicker
             button.setLayout(new BoxLayout(button, BoxLayout.Y_AXIS));
 
             int finalDay = day;
-            button.addActionListener(new ActionListener()
+            button.addActionListener(e ->
             {
-                @Override
-                public void actionPerformed(ActionEvent e)
-                {
-                    currentDay = finalDay;
-                    dialog.dispose();
-                }
+                currentDay = finalDay;
+                dialog.dispose();
             });
 
             if (day == todayDay && currentMonth == todayMonth && currentYear == todayYear)

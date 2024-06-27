@@ -1,7 +1,7 @@
 package ch.francescoryu.view.areas;
 
 import ch.francescoryu.util.MenuAreaListener;
-import ch.francescoryu.view.dialogs.AddEventDialog;
+import ch.francescoryu.view.components.buttons.SecondaryButton;
 
 import javax.swing.*;
 import java.awt.*;
@@ -11,7 +11,6 @@ public class MenuArea
 {
     private MenuAreaListener menuAreaListener;
 
-    private JButton dashboardButton;
     private JButton settingsButton;
     private JButton addButton;
 
@@ -31,14 +30,13 @@ public class MenuArea
 
     private void initMenuButtons()
     {
-        dashboardButton = new JButton(new ImageIcon(Objects.requireNonNull(MenuArea.class.getResource("/icons/calendar.png"))));
-        dashboardButton.setBackground(null);
+        settingsButton = new SecondaryButton("");
+        settingsButton.setIcon(new ImageIcon(Objects.requireNonNull(MenuArea.class.getResource("/icons/setting.png"))));
+        settingsButton.setBackground(Color.WHITE);
 
-        settingsButton = new JButton(new ImageIcon(Objects.requireNonNull(MenuArea.class.getResource("/icons/setting.png"))));
-        settingsButton.setBackground(null);
-
-        addButton = new JButton(new ImageIcon(Objects.requireNonNull(MenuArea.class.getResource("/icons/add.png"))));
-        addButton.setBackground(null);
+        addButton = new SecondaryButton("");
+        addButton.setIcon(new ImageIcon(Objects.requireNonNull(MenuArea.class.getResource("/icons/add.png"))));
+        addButton.setBackground(Color.WHITE);
 
         addListeners();
     }
@@ -56,7 +54,6 @@ public class MenuArea
 
         contentPanel = new JPanel();
         contentPanel.setBackground(Color.decode("#757575"));
-        contentPanel.add(dashboardButton);
         contentPanel.add(addButton);
         contentPanel.add(settingsButton);
     }

@@ -27,7 +27,7 @@ public class EventModel
 
     public EventModel()
     {
-
+        this("", "", null, null, "", false);
     }
 
     public EventModel(String title, String description, LocalDateTime startDateTime, LocalDateTime endDateTime, String labelColor, boolean isWholeDay)

@@ -3,10 +3,11 @@ package ch.francescoryu.view;
 import ch.francescoryu.model.EventModel;
 import ch.francescoryu.model.Events;
 import ch.francescoryu.util.AddEventListener;
+import ch.francescoryu.util.CalendarListener;
 import ch.francescoryu.util.MenuAreaListener;
 import ch.francescoryu.view.areas.CalendarArea;
 import ch.francescoryu.view.areas.MenuArea;
-import ch.francescoryu.view.dialogs.AddEventDialog;
+import ch.francescoryu.view.dialogs.EventDialog;
 import ch.francescoryu.xml.XMLController;
 import jakarta.xml.bind.JAXBException;
 
@@ -28,7 +29,7 @@ public class MainView
     private MenuAreaListener menuAreaListener;
     private AddEventListener addEventListener;
 
-    private AddEventDialog addEventDialog;
+    private EventDialog eventDialog;
 
     private Events events;
 
@@ -53,7 +54,7 @@ public class MainView
             @Override
             public void onSave()
             {
-                EventModel eventModel = addEventDialog.getEvent();
+                EventModel eventModel = eventDialog.getEvent();
                 events.addEvent(eventModel);
                 try
                 {
@@ -85,7 +86,7 @@ public class MainView
             @Override
             public void pressedAddEventButton()
             {
-                addEventDialog = new AddEventDialog(frame, addEventListener);
+                eventDialog = new EventDialog(frame, addEventListener);
             }
 
             @Override
@@ -104,7 +105,7 @@ public class MainView
 
     private void initCalendarPanel()
     {
-        calendarArea = new CalendarArea(events);
+        calendarArea = new CalendarArea(events, frame);
         calendarPanel = calendarArea.getPanel();
         calendarPanel.setBackground(Color.decode("#a3ccbe"));
     }

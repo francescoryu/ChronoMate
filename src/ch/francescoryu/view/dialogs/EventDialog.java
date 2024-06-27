@@ -4,12 +4,12 @@ import ch.francescoryu.model.EventModel;
 import ch.francescoryu.util.AddEventListener;
 import ch.francescoryu.util.CalendarUtil;
 import ch.francescoryu.util.ToolTipHolder;
-import ch.francescoryu.view.DatePicker;
 import ch.francescoryu.view.MainView;
 import ch.francescoryu.view.components.buttons.PrimaryButton;
 import ch.francescoryu.view.components.buttons.SecondaryButton;
 import ch.francescoryu.view.components.labels.AddEventLabel;
 import ch.francescoryu.view.components.spinner.TimeSpinner;
+import ch.francescoryu.view.pickers.DatePicker;
 
 import javax.swing.*;
 import java.awt.*;
@@ -19,9 +19,9 @@ import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
 
-public class AddEventDialog
+public class EventDialog
 {
-    private AddEventListener addEventListener;
+    private final AddEventListener addEventListener;
 
     private LocalDate startLocalDate;
     private LocalDate endLocalDate;
@@ -53,10 +53,11 @@ public class AddEventDialog
 
     private JFrame frame;
 
-    public AddEventDialog(Window parent, AddEventListener addEventListener)
+    public EventDialog(Window parent, AddEventListener addEventListener)
     {
         this.addEventListener = addEventListener;
         this.parent = parent;
+        eventModel = new EventModel();
         init();
     }
 
@@ -111,6 +112,10 @@ public class AddEventDialog
         colorPickerButton.setBorderPainted(false);
         colorPickerButton.setOpaque(true);
         colorPickerButton.setBackground(Color.decode("#ceaddb"));
+        colorPickerButton.addActionListener(e ->
+        {
+
+        });
         CalendarUtil.addToolTipToComponent(colorPickerButton, ToolTipHolder.COLOR_PICKER_BUTTON);
 
         startSpinner = new TimeSpinner();
@@ -143,6 +148,8 @@ public class AddEventDialog
 
     private void initContentPanel()
     {
+        int y = 0;
+
         contentPanel = new JPanel(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(5, 5, 5, 5);
@@ -151,11 +158,11 @@ public class AddEventDialog
 
         gbc.anchor = GridBagConstraints.WEST;
         gbc.gridx = 0;
-        gbc.gridy = 0;
+        gbc.gridy = y;
         contentPanel.add(new AddEventLabel("Title"), gbc);
 
         gbc.gridx = 1;
-        gbc.gridy = 0;
+        gbc.gridy = y;
         gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.weightx = 1.0;
@@ -164,8 +171,10 @@ public class AddEventDialog
 
         //-------------------------------------------------------------------
 
+        y++;
+
         gbc.gridx = 0;
-        gbc.gridy = 1;
+        gbc.gridy = y;
         gbc.gridwidth = 1;
         gbc.fill = GridBagConstraints.NONE;
         gbc.weightx = 0.0;
@@ -173,7 +182,7 @@ public class AddEventDialog
         contentPanel.add(new AddEventLabel("Description"), gbc);
 
         gbc.gridx = 1;
-        gbc.gridy = 1;
+        gbc.gridy = y;
         gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.weightx = 1.0;
@@ -182,8 +191,10 @@ public class AddEventDialog
 
         //-------------------------------------------------------------------
 
+        y++;
+
         gbc.gridx = 0;
-        gbc.gridy = 2;
+        gbc.gridy = y;
         gbc.gridwidth = 1;
         gbc.fill = GridBagConstraints.NONE;
         gbc.weightx = 0.0;
@@ -195,7 +206,7 @@ public class AddEventDialog
         startDatePanel.add(startDateButton, BorderLayout.EAST);
 
         gbc.gridx = 1;
-        gbc.gridy = 2;
+        gbc.gridy = y;
         gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.weightx = 1.0;
@@ -204,8 +215,10 @@ public class AddEventDialog
 
         //-------------------------------------------------------------------
 
+        y++;
+
         gbc.gridx = 0;
-        gbc.gridy = 3;
+        gbc.gridy = y;
         gbc.gridwidth = 1;
         gbc.fill = GridBagConstraints.NONE;
         gbc.weightx = 0.0;
@@ -217,7 +230,7 @@ public class AddEventDialog
         endDatePanel.add(endDateButton, BorderLayout.EAST);
 
         gbc.gridx = 1;
-        gbc.gridy = 3;
+        gbc.gridy = y;
         gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.weightx = 1.0;
@@ -226,8 +239,10 @@ public class AddEventDialog
 
         //-------------------------------------------------------------------
 
+        y++;
+
         gbc.gridx = 0;
-        gbc.gridy = 4;
+        gbc.gridy = y;
         gbc.gridwidth = 1;
         gbc.fill = GridBagConstraints.NONE;
         gbc.weightx = 0.0;
@@ -235,7 +250,7 @@ public class AddEventDialog
         contentPanel.add(new AddEventLabel("Whole day"), gbc);
 
         gbc.gridx = 1;
-        gbc.gridy = 4;
+        gbc.gridy = y;
         gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.weightx = 1.0;
@@ -244,8 +259,10 @@ public class AddEventDialog
 
         //-------------------------------------------------------------------
 
+        y++;
+
         gbc.gridx = 0;
-        gbc.gridy = 5;
+        gbc.gridy = y;
         gbc.gridwidth = 1;
         gbc.fill = GridBagConstraints.NONE;
         gbc.weightx = 0.0;
@@ -253,7 +270,7 @@ public class AddEventDialog
         contentPanel.add(new AddEventLabel("Start Time"), gbc);
 
         gbc.gridx = 1;
-        gbc.gridy = 5;
+        gbc.gridy = y;
         gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.weightx = 1.0;
@@ -262,8 +279,10 @@ public class AddEventDialog
 
         //-------------------------------------------------------------------
 
+        y++;
+
         gbc.gridx = 0;
-        gbc.gridy = 6;
+        gbc.gridy = y;
         gbc.gridwidth = 1;
         gbc.fill = GridBagConstraints.NONE;
         gbc.weightx = 0.0;
@@ -280,8 +299,10 @@ public class AddEventDialog
 
         //-------------------------------------------------------------------
 
+        y++;
+
         gbc.gridx = 0;
-        gbc.gridy = 7;
+        gbc.gridy = y;
         gbc.gridwidth = 1;
         gbc.fill = GridBagConstraints.NONE;
         gbc.weightx = 0.0;
@@ -289,7 +310,7 @@ public class AddEventDialog
         contentPanel.add(new AddEventLabel("Select color"), gbc);
 
         gbc.gridx = 1;
-        gbc.gridy = 7;
+        gbc.gridy = y;
         gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.weightx = 1.0;
         gbc.weighty = 0;
@@ -315,14 +336,13 @@ public class AddEventDialog
         saveButton.addActionListener(e ->
         {
             createNewEventModel();
-
             addEventListener.onSave();
+            frame.dispose();
         });
     }
 
     private void createNewEventModel()
     {
-        eventModel = new EventModel();
         eventModel.setTitle(titleTextField.getText());
         eventModel.setDescription(descriptionTextArea.getText());
         eventModel.setWholeDay(wholeDayCheckBox.isSelected());
@@ -359,14 +379,9 @@ public class AddEventDialog
         frame.add(contentPanel, BorderLayout.CENTER);
         frame.add(buttonPanel, BorderLayout.SOUTH);
 
-        JButton button = new PrimaryButton("Confirm", 15);
-        button.addActionListener(e ->
-        {
-            frame.setVisible(false);
-        });
-
         frame.pack();
         frame.setLocationRelativeTo(parent);
+        frame.setResizable(false);
         frame.setVisible(true);
     }
 
