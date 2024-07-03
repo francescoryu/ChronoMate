@@ -4,9 +4,12 @@ import ch.francescoryu.model.EventModel;
 import ch.francescoryu.model.Events;
 import ch.francescoryu.util.CalendarUtil;
 import ch.francescoryu.view.components.buttons.PrimaryButton;
+import ch.francescoryu.xml.XMLController;
+import jakarta.xml.bind.JAXBException;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
+import javax.swing.border.LineBorder;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 import java.awt.*;
@@ -25,7 +28,7 @@ public class CalendarArea
     private static final Cursor HAND_CURSOR = new Cursor(Cursor.HAND_CURSOR);
     private static final Cursor DEFAULT_CURSOR = new Cursor(Cursor.DEFAULT_CURSOR);
 
-    private Window parent;
+    private final Window parent;
 
     private int currentYear;
     private int currentMonth;
@@ -66,14 +69,10 @@ public class CalendarArea
         monthComboBox.setFont(CalendarUtil.getCalendarItemsFont(true, 18));
 
         JButton todayButton = new PrimaryButton("Today", 15);
-        todayButton.addActionListener(new ActionListener()
+        todayButton.addActionListener(e ->
         {
-            @Override
-            public void actionPerformed(ActionEvent e)
-            {
-                setCalendarToCurrentDate();
-                updateCalendar();
-            }
+            setCalendarToCurrentDate();
+            updateCalendar();
         });
 
         topPanel.add(yearComboBox);
@@ -254,16 +253,54 @@ public class CalendarArea
 
     private void createContextMenu(MouseEvent e, EventModel eventModel, JLabel eventLabel)
     {
-        JMenuItem deleteItem = new JMenuItem("Delete");
-        deleteItem.setBackground(Color.WHITE);
+        JMenuItem showItem = createEmptyIconMenuItem("<html><b>Show</b> selected event</html>");
+
+        JMenuItem editItem = createEmptyIconMenuItem("<html><b>Edit</b> selected event</html>");
+
+        JMenuItem deleteItem = createEmptyIconMenuItem("<html><b>Delete</b> selected event</html>");
         deleteItem.addActionListener(actionEvent -> onDeleteAction(eventModel, eventLabel));
 
         JPopupMenu popupMenu = new JPopupMenu();
-        popupMenu.setBackground(Color.WHITE);
+        popupMenu.add(showItem);
+        popupMenu.add(editItem);
         popupMenu.add(deleteItem);
         addPopupListener(popupMenu);
 
+        popupMenu.addPopupMenuListener(new PopupMenuListener()
+        {
+            @Override
+            public void popupMenuWillBecomeVisible(PopupMenuEvent e)
+            {
+                eventLabel.setBorder(new LineBorder(Color.RED, 2));
+            }
+
+            @Override
+            public void popupMenuWillBecomeInvisible(PopupMenuEvent e)
+            {
+                eventLabel.setBorder(null);
+            }
+
+            @Override
+            public void popupMenuCanceled(PopupMenuEvent e)
+            {
+                eventLabel.setBorder(null);
+            }
+        });
+
         popupMenu.show(e.getComponent(), e.getX(), e.getY());
+    }
+
+    private JMenuItem createEmptyIconMenuItem(String text)
+    {
+        JMenuItem menuItem = new JMenuItem(text);
+        menuItem.setIcon(null);
+        menuItem.setHorizontalAlignment(JMenuItem.LEFT);
+        menuItem.setHorizontalTextPosition(JMenuItem.LEFT);
+        menuItem.setIconTextGap(0);
+        menuItem.setMargin(new Insets(2, -20, 2, 10));
+        menuItem.setPressedIcon(null);
+
+        return menuItem;
     }
 
     private void onDeleteAction(EventModel eventModel, JLabel eventLabel)
@@ -272,13 +309,19 @@ public class CalendarArea
         if (result == JOptionPane.YES_OPTION)
         {
             events.getEventList().remove(eventModel);
+            marshal();
             updateCalendar();
         }
     }
 
     private void addPopupListener(JPopupMenu popupMenu)
     {
-        popupMenu.addPopupMenuListener(new PopupMenuListener()
+        popupMenu.addPopupMenuListener(createPopupListener());
+    }
+
+    private PopupMenuListener createPopupListener()
+    {
+        return new PopupMenuListener()
         {
             @Override
             public void popupMenuWillBecomeVisible(PopupMenuEvent e)
@@ -300,7 +343,7 @@ public class CalendarArea
                 contentPanel.revalidate();
                 contentPanel.repaint();
             }
-        });
+        };
     }
 
     public JPanel getPanel()
@@ -312,5 +355,17 @@ public class CalendarArea
     {
         this.events = events;
         updateCalendar();
+    }
+
+    private void marshal()
+    {
+        try
+        {
+            XMLController.marshal(events);
+        }
+        catch (JAXBException e)
+        {
+            throw new RuntimeException(e);
+        }
     }
 }

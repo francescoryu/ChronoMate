@@ -7,15 +7,15 @@ import java.awt.*;
 
 public class SecondaryButton extends JButton
 {
-    public SecondaryButton(String text)
+    public SecondaryButton(String text, int fontSize)
     {
         super(text);
-        init();
+        init(fontSize);
     }
 
-    private void init()
+    private void init(int fontSize)
     {
-        this.setFont(CalendarUtil.getCalendarItemsFont(true, 15));
+        this.setFont(CalendarUtil.getCalendarItemsFont(true, fontSize));
         this.setBorderPainted(false);
         this.setOpaque(true);
         this.setBackground(Color.decode("#b6b6b8"));

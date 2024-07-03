@@ -30,11 +30,11 @@ public class MenuArea
 
     private void initMenuButtons()
     {
-        settingsButton = new SecondaryButton("");
+        settingsButton = new SecondaryButton("", 0);
         settingsButton.setIcon(new ImageIcon(Objects.requireNonNull(MenuArea.class.getResource("/icons/setting.png"))));
         settingsButton.setBackground(Color.WHITE);
 
-        addButton = new SecondaryButton("");
+        addButton = new SecondaryButton("", 0);
         addButton.setIcon(new ImageIcon(Objects.requireNonNull(MenuArea.class.getResource("/icons/add.png"))));
         addButton.setBackground(Color.WHITE);
 

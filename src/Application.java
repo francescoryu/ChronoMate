@@ -5,6 +5,7 @@ import ch.francescoryu.util.PathHolder;
 import ch.francescoryu.xml.XMLController;
 
 import javax.swing.*;
+import java.awt.*;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -24,10 +25,6 @@ public class Application
         createDirectoryIfNotExists();
         initLaF();
         initGUI();
-        Date date = new Date();
-        
-        Calendar calendar = GregorianCalendar.getInstance();
-        calendar.setTime(date);
     }
     
     private static void initGUI()
@@ -47,6 +44,7 @@ public class Application
         try
         {
             UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
+            UIManager.put("JFrame.activeTitleBackground", Color.red);
         }
         catch(Exception e)
         {

@@ -19,7 +19,7 @@ import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
 
-public class EventDialog
+public class CreateEventDialog
 {
     private final AddEventListener addEventListener;
 
@@ -49,11 +49,11 @@ public class EventDialog
     private DatePicker startDatePicker;
     private DatePicker endDatePicker;
 
-    private EventModel eventModel;
+    private final EventModel eventModel;
 
     private JFrame frame;
 
-    public EventDialog(Window parent, AddEventListener addEventListener)
+    public CreateEventDialog(Window parent, AddEventListener addEventListener)
     {
         this.addEventListener = addEventListener;
         this.parent = parent;
@@ -319,7 +319,7 @@ public class EventDialog
 
     private void initButtonPanel()
     {
-        cancelButton = new SecondaryButton("Cancel");
+        cancelButton = new SecondaryButton("Cancel", 15);
         saveButton = new PrimaryButton("Save", 15);
 
         buttonPanel = new JPanel();
@@ -379,7 +379,7 @@ public class EventDialog
         frame.add(contentPanel, BorderLayout.CENTER);
         frame.add(buttonPanel, BorderLayout.SOUTH);
 
-        frame.pack();
+        frame.setSize(new Dimension(600, 500));
         frame.setLocationRelativeTo(parent);
         frame.setResizable(false);
         frame.setVisible(true);

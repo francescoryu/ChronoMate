@@ -22,6 +22,7 @@ public class DatePicker
     private int todayDay;
     private int todayMonth;
     private int todayYear;
+
     private JComboBox<Integer> yearComboBox;
     private JComboBox<String> monthComboBox;
 
@@ -42,7 +43,7 @@ public class DatePicker
 
     private void initCancelButton()
     {
-        cancelButton = new SecondaryButton("Cancel");
+        cancelButton = new SecondaryButton("Cancel", 11);
         cancelButton.addActionListener(e ->
         {
             currentYear = LocalDate.now().getYear();
